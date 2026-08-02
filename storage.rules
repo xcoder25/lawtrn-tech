@@ -1,0 +1,41 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isApprovedAdmin() {
+      return request.auth != null &&
+        firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid)) &&
+        firestore.get(/databases/(default)/documents/admins/$(request.auth.uid)).data.approved == true;
+    }
+
+    // Public assets: project covers, research PDFs, team photos, blog
+    // images, course videos. Anyone can view; only approved admins can
+    // upload, replace, or remove them.
+    match /projects/{allPaths=**} {
+      allow read: if true;
+      allow write: if isApprovedAdmin();
+    }
+    match /research/{allPaths=**} {
+      allow read: if true;
+      allow write: if isApprovedAdmin();
+    }
+    match /team/{allPaths=**} {
+      allow read: if true;
+      allow write: if isApprovedAdmin();
+    }
+    match /blog/{allPaths=**} {
+      allow read: if true;
+      allow write: if isApprovedAdmin();
+    }
+    match /courses/{allPaths=**} {
+      allow read: if true;
+      allow write: if isApprovedAdmin();
+    }
+
+    // Anything not explicitly matched above is locked down by default.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
