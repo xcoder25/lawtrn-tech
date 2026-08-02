@@ -5,13 +5,12 @@ import { getStorage, type FirebaseStorage } from 'firebase/storage';
 import { getAnalytics, isSupported, type Analytics } from 'firebase/analytics';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyDkKrwQJLp8XMEhMOq4v_jr_Ju8-bAOlFU",
+  authDomain: "studio-9635462929-d7b8b.firebaseapp.com",
+  projectId: "studio-9635462929-d7b8b",
+  storageBucket: "studio-9635462929-d7b8b.firebasestorage.app",
+  messagingSenderId: "389621491469",
+  appId: "1:389621491469:web:7f5d804da306c0b48cf244",
 };
 
 /** True when all required Firebase env vars are present. */
