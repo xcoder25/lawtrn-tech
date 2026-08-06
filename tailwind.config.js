@@ -5,24 +5,24 @@ export default {
     extend: {
       colors: {
         // Logo-aligned: deep navy, electric blue, chrome silver
-        void: '#050B16',
-        panel: '#0A1220',
-        panel2: '#0F1A2C',
-        panel3: '#162236',
-        line: '#1A2A40',
-        'line-bright': '#2A3F5C',
-        circuit: '#1A9FFF',       // electric blue from logo
-        'circuit-bright': '#4DB8FF',
-        'circuit-dim': '#0D6BB5',
-        chrome: '#C5CDD8',        // silver from logo
-        'chrome-bright': '#E8EEF6',
-        signal: '#2DD4BF',
-        'signal-dim': '#1A8A7A',
-        ink: '#E8EEF6',
-        'ink-dim': '#8B9BB0',
-        'ink-muted': '#5A6A80',
-        alert: '#FF5D5D',
-        success: '#34D399',
+        void: 'rgb(var(--color-void-rgb) / <alpha-value>)',
+        panel: 'rgb(var(--color-panel-rgb) / <alpha-value>)',
+        panel2: 'rgb(var(--color-panel2-rgb) / <alpha-value>)',
+        panel3: 'rgb(var(--color-panel3-rgb) / <alpha-value>)',
+        line: 'rgb(var(--color-line-rgb) / <alpha-value>)',
+        'line-bright': 'rgb(var(--color-line-bright-rgb) / <alpha-value>)',
+        circuit: 'rgb(var(--color-circuit-rgb) / <alpha-value>)',       // electric blue from logo
+        'circuit-bright': 'rgb(var(--color-circuit-bright-rgb) / <alpha-value>)',
+        'circuit-dim': 'rgb(var(--color-circuit-dim-rgb) / <alpha-value>)',
+        chrome: 'rgb(var(--color-chrome-rgb) / <alpha-value>)',        // silver from logo
+        'chrome-bright': 'rgb(var(--color-chrome-bright-rgb) / <alpha-value>)',
+        signal: 'rgb(var(--color-signal-rgb) / <alpha-value>)',
+        'signal-dim': 'rgb(var(--color-signal-dim-rgb) / <alpha-value>)',
+        ink: 'rgb(var(--color-ink-rgb) / <alpha-value>)',
+        'ink-dim': 'rgb(var(--color-ink-dim-rgb) / <alpha-value>)',
+        'ink-muted': 'rgb(var(--color-ink-muted-rgb) / <alpha-value>)',
+        alert: 'rgb(var(--color-alert-rgb) / <alpha-value>)',
+        success: 'rgb(var(--color-success-rgb) / <alpha-value>)',
       },
       fontFamily: {
         display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
@@ -31,23 +31,23 @@ export default {
       },
       backgroundImage: {
         'circuit-grid':
-          "linear-gradient(rgba(26,159,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(26,159,255,0.05) 1px, transparent 1px)",
+          "linear-gradient(rgb(var(--color-circuit-rgb) / 0.05) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--color-circuit-rgb) / 0.05) 1px, transparent 1px)",
         'hero-glow':
-          'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(26,159,255,0.18), transparent), radial-gradient(ellipse 50% 40% at 85% 40%, rgba(45,212,191,0.06), transparent)',
+          'radial-gradient(ellipse 80% 50% at 50% -20%, rgb(var(--color-circuit-rgb) / 0.18), transparent), radial-gradient(ellipse 50% 40% at 85% 40%, rgb(var(--color-signal-rgb) / 0.06), transparent)',
         'card-shine':
-          'linear-gradient(135deg, rgba(26,159,255,0.04) 0%, transparent 45%, rgba(197,205,216,0.02) 100%)',
+          'linear-gradient(135deg, rgb(var(--color-circuit-rgb) / 0.04) 0%, transparent 45%, rgb(var(--color-chrome-rgb) / 0.02) 100%)',
         'logo-glow':
-          'radial-gradient(circle at center, rgba(26,159,255,0.15), transparent 70%)',
+          'radial-gradient(circle at center, rgb(var(--color-circuit-rgb) / 0.15), transparent 70%)',
       },
       backgroundSize: {
         grid: '48px 48px',
       },
       boxShadow: {
-        glow: '0 0 28px -4px rgba(26,159,255,0.35)',
-        'glow-sm': '0 0 14px -2px rgba(26,159,255,0.25)',
-        'glow-signal': '0 0 20px -4px rgba(45,212,191,0.3)',
-        card: '0 4px 24px -8px rgba(0,0,0,0.55)',
-        elevated: '0 12px 40px -12px rgba(0,0,0,0.65)',
+        glow: '0 0 28px -4px rgb(var(--color-circuit-rgb) / 0.35)',
+        'glow-sm': '0 0 14px -2px rgb(var(--color-circuit-rgb) / 0.25)',
+        'glow-signal': '0 0 20px -4px rgb(var(--color-signal-rgb) / 0.3)',
+        card: '0 4px 24px -8px rgba(0,0,0,0.12)',
+        elevated: '0 12px 40px -12px rgba(0,0,0,0.18)',
       },
       keyframes: {
         traceIn: {
@@ -96,8 +96,8 @@ export default {
           '100%': { opacity: '1', transform: 'translateX(0)' },
         },
         borderGlow: {
-          '0%, 100%': { borderColor: 'rgba(26,159,255,0.2)' },
-          '50%': { borderColor: 'rgba(26,159,255,0.55)' },
+          '0%, 100%': { borderColor: 'rgb(var(--color-circuit-rgb) / 0.2)' },
+          '50%': { borderColor: 'rgb(var(--color-circuit-rgb) / 0.55)' },
         },
       },
       animation: {

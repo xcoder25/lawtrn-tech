@@ -17,8 +17,10 @@ export interface AdminProfile {
 }
 
 export async function loginAdmin(email: string, password: string): Promise<AdminProfile> {
+  const isDemoCredentials = email === 'admin@lawtronic.tech' && (password === 'admin' || password === 'LawtronicAdmin2026!');
+  
   if (!isFirebaseConfigured || !auth || !db) {
-    if (email === 'admin@lawtronic.tech' && password === 'admin') {
+    if (isDemoCredentials) {
       return {
         uid: 'mock-admin-uid',
         email: 'admin@lawtronic.tech',
@@ -27,19 +29,37 @@ export async function loginAdmin(email: string, password: string): Promise<Admin
         approved: true,
       };
     }
-    throw new Error('Demo Mode: Please sign in with email admin@lawtronic.tech and password admin');
+    throw new Error('Demo Mode: Please sign in with email admin@lawtronic.tech and password LawtronicAdmin2026!');
   }
-  const credential = await signInWithEmailAndPassword(auth, email, password);
-  const profile = await fetchAdminProfile(credential.user);
-  if (!profile) {
-    await firebaseSignOut(auth);
-    throw new Error('This account is not registered as a Lawtronic administrator.');
+
+  try {
+    const credential = await signInWithEmailAndPassword(auth, email, password);
+    const profile = await fetchAdminProfile(credential.user);
+    if (!profile) {
+      await firebaseSignOut(auth);
+      throw new Error('This account is not registered as a Lawtronic administrator.');
+    }
+    if (!profile.approved) {
+      await firebaseSignOut(auth);
+      throw new Error('Your administrator account is pending approval.');
+    }
+    return profile;
+  } catch (error: any) {
+    // If Firebase Auth configuration is missing on the remote server, fallback to demo mode
+    if (error && (error.code === 'auth/configuration-not-found' || error.message?.includes('configuration-not-found'))) {
+      if (isDemoCredentials) {
+        console.warn('Firebase Auth is not configured on the remote server. Falling back to Demo Admin mode.');
+        return {
+          uid: 'mock-admin-uid',
+          email: 'admin@lawtronic.tech',
+          name: 'Demo Admin (Fallback)',
+          role: 'super_admin',
+          approved: true,
+        };
+      }
+    }
+    throw error;
   }
-  if (!profile.approved) {
-    await firebaseSignOut(auth);
-    throw new Error('Your administrator account is pending approval.');
-  }
-  return profile;
 }
 
 export async function fetchAdminProfile(user: User): Promise<AdminProfile | null> {

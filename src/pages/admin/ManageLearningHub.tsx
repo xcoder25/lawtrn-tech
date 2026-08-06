@@ -16,6 +16,7 @@ export default function ManageLearningHub() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Course | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -45,17 +46,27 @@ export default function ManageLearningHub() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setSaving(true);
     const slug = form.title.toLowerCase().trim().replace(/\s+/g, '-');
     try {
       if (editing) {
         await updateDocById(COLLECTIONS.courses, editing.id, { ...form, slug });
+        setCourses((prev) =>
+          prev.map((c) => (c.id === editing.id ? { ...c, ...form, slug } : c))
+        );
       } else {
-        await createDoc(COLLECTIONS.courses, { ...form, slug, lessons: [] });
+        const result = await createDoc(COLLECTIONS.courses, { ...form, slug, lessons: [] });
+        const newId = (result as { id: string })?.id ?? `local-${Date.now()}`;
+        setCourses((prev) => [
+          ...prev,
+          { ...form, slug, id: newId, lessons: [] } as Course,
+        ]);
       }
       setModalOpen(false);
-      load();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Save failed. Check connection.');
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -63,7 +74,7 @@ export default function ManageLearningHub() {
     if (!confirm('Delete this course?')) return;
     try {
       await deleteDocById(COLLECTIONS.courses, id);
-      load();
+      setCourses((prev) => prev.filter((c) => c.id !== id));
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Delete failed.');
     }
@@ -130,7 +141,7 @@ export default function ManageLearningHub() {
             <input type="checkbox" checked={form.published} onChange={(e) => setForm((f) => ({ ...f, published: e.target.checked }))} />
             Publish immediately
           </label>
-          <button type="submit" className="btn-primary w-full justify-center text-sm">{editing ? 'Save changes' : 'Create course'}</button>
+          <button type="submit" disabled={saving} className="btn-primary w-full justify-center text-sm">{saving ? 'Saving…' : editing ? 'Save changes' : 'Create course'}</button>
         </form>
       </Modal>
     </div>

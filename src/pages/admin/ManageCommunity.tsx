@@ -13,6 +13,7 @@ export default function ManageCommunity() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<CommunityEvent | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -42,16 +43,26 @@ export default function ManageCommunity() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setSaving(true);
     try {
       if (editing) {
         await updateDocById(COLLECTIONS.events, editing.id, form);
+        setEvents((prev) =>
+          prev.map((ev) => (ev.id === editing.id ? { ...ev, ...form } : ev))
+        );
       } else {
-        await createDoc(COLLECTIONS.events, { ...form, registeredCount: 0 });
+        const result = await createDoc(COLLECTIONS.events, { ...form, registeredCount: 0 });
+        const newId = (result as { id: string })?.id ?? `local-${Date.now()}`;
+        setEvents((prev) => [
+          ...prev,
+          { ...form, id: newId, registeredCount: 0 } as CommunityEvent,
+        ]);
       }
       setModalOpen(false);
-      load();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Save failed. Check connection.');
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -59,7 +70,7 @@ export default function ManageCommunity() {
     if (!confirm('Delete this event?')) return;
     try {
       await deleteDocById(COLLECTIONS.events, id);
-      load();
+      setEvents((prev) => prev.filter((ev) => ev.id !== id));
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Delete failed.');
     }
@@ -126,7 +137,7 @@ export default function ManageCommunity() {
             <input type="checkbox" checked={form.registrationOpen} onChange={(e) => setForm((f) => ({ ...f, registrationOpen: e.target.checked }))} />
             Registration open
           </label>
-          <button type="submit" className="btn-primary w-full justify-center text-sm">{editing ? 'Save changes' : 'Create event'}</button>
+          <button type="submit" disabled={saving} className="btn-primary w-full justify-center text-sm">{saving ? 'Saving…' : editing ? 'Save changes' : 'Create event'}</button>
         </form>
       </Modal>
     </div>

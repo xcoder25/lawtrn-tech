@@ -4,8 +4,9 @@ import Modal from '../../components/ui/Modal';
 import { COLLECTIONS, listDocs, createDoc, updateDocById, deleteDocById } from '../../firebase/firestore';
 import type { ResearchPublication } from '../../types';
 import { mockResearch } from '../../data/mockData';
+import FileUploader from '../../components/ui/FileUploader';
 
-const emptyForm = { title: '', category: '', abstract: '', contributors: '', published: false };
+const emptyForm = { title: '', category: '', abstract: '', contributors: '', documentUrl: '', published: false };
 
 export default function ManageResearch() {
   const [items, setItems] = useState<ResearchPublication[]>([]);
@@ -13,6 +14,7 @@ export default function ManageResearch() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<ResearchPublication | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -41,6 +43,7 @@ export default function ManageResearch() {
       category: item.category,
       abstract: item.abstract,
       contributors: item.contributors.join(', '),
+      documentUrl: item.documentUrl ?? '',
       published: item.published,
     });
     setModalOpen(true);
@@ -48,29 +51,40 @@ export default function ManageResearch() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setSaving(true);
     const slug = form.title.toLowerCase().trim().replace(/\s+/g, '-');
     const payload = {
       title: form.title,
       category: form.category,
       abstract: form.abstract,
       contributors: form.contributors.split(',').map((c) => c.trim()).filter(Boolean),
+      documentUrl: form.documentUrl || undefined,
       published: form.published,
     };
     try {
       if (editing) {
         await updateDocById(COLLECTIONS.research, editing.id, { ...payload, slug });
+        setItems((prev) =>
+          prev.map((it) => (it.id === editing.id ? { ...it, ...payload, slug } : it))
+        );
       } else {
-        await createDoc(COLLECTIONS.research, {
+        const result = await createDoc(COLLECTIONS.research, {
           ...payload,
           slug,
           references: [],
           publishedAt: new Date().toISOString(),
         });
+        const newId = (result as { id: string })?.id ?? `local-${Date.now()}`;
+        setItems((prev) => [
+          ...prev,
+          { ...payload, slug, id: newId, references: [], publishedAt: new Date().toISOString() } as ResearchPublication,
+        ]);
       }
       setModalOpen(false);
-      load();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Save failed. Check connection.');
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -78,7 +92,7 @@ export default function ManageResearch() {
     if (!confirm('Delete this publication?')) return;
     try {
       await deleteDocById(COLLECTIONS.research, id);
-      load();
+      setItems((prev) => prev.filter((it) => it.id !== id));
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Delete failed.');
     }
@@ -158,10 +172,14 @@ export default function ManageResearch() {
             onChange={(e) => setForm((f) => ({ ...f, contributors: e.target.value }))}
             className="admin-input"
           />
-          <p className="text-xs text-ink-dim">
-            Attach the PDF after saving — file upload writes to Firebase Storage and stores the
-            resulting URL on this record.
-          </p>
+          <FileUploader
+            label="Research Publication Document (PDF)"
+            accept="application/pdf"
+            storagePath="research"
+            value={form.documentUrl}
+            onChange={(url) => setForm((f) => ({ ...f, documentUrl: url }))}
+            isImage={false}
+          />
           <label className="flex items-center gap-2 text-sm text-ink-dim">
             <input
               type="checkbox"
@@ -170,8 +188,8 @@ export default function ManageResearch() {
             />
             Publish immediately
           </label>
-          <button type="submit" className="btn-primary w-full justify-center text-sm">
-            {editing ? 'Save changes' : 'Create publication'}
+          <button type="submit" disabled={saving} className="btn-primary w-full justify-center text-sm">
+            {saving ? 'Saving…' : editing ? 'Save changes' : 'Create publication'}
           </button>
         </form>
       </Modal>

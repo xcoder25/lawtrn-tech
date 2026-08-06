@@ -4,8 +4,9 @@ import Modal from '../../components/ui/Modal';
 import { COLLECTIONS, listDocs, createDoc, updateDocById, deleteDocById } from '../../firebase/firestore';
 import type { TeamMember } from '../../types';
 import { mockTeam } from '../../data/mockData';
+import FileUploader from '../../components/ui/FileUploader';
 
-const emptyForm = { name: '', role: '', department: '', bio: '', skills: '', linkedinUrl: '' };
+const emptyForm = { name: '', role: '', department: '', bio: '', skills: '', linkedinUrl: '', photoUrl: '' };
 
 export default function ManageTeam() {
   const [members, setMembers] = useState<TeamMember[]>([]);
@@ -13,6 +14,7 @@ export default function ManageTeam() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<TeamMember | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -43,12 +45,14 @@ export default function ManageTeam() {
       bio: member.bio,
       skills: member.skills.join(', '),
       linkedinUrl: member.linkedinUrl ?? '',
+      photoUrl: member.photoUrl ?? '',
     });
     setModalOpen(true);
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setSaving(true);
     const payload = {
       name: form.name,
       role: form.role,
@@ -56,17 +60,27 @@ export default function ManageTeam() {
       bio: form.bio,
       skills: form.skills.split(',').map((s) => s.trim()).filter(Boolean),
       linkedinUrl: form.linkedinUrl || undefined,
+      photoUrl: form.photoUrl,
     };
     try {
       if (editing) {
         await updateDocById(COLLECTIONS.team, editing.id, payload);
+        setMembers((prev) =>
+          prev.map((m) => (m.id === editing.id ? { ...m, ...payload } : m))
+        );
       } else {
-        await createDoc(COLLECTIONS.team, { ...payload, photoUrl: '', order: members.length + 1 });
+        const result = await createDoc(COLLECTIONS.team, { ...payload, order: members.length + 1 });
+        const newId = (result as { id: string })?.id ?? `local-${Date.now()}`;
+        setMembers((prev) => [
+          ...prev,
+          { ...payload, id: newId, order: members.length + 1 } as TeamMember,
+        ]);
       }
       setModalOpen(false);
-      load();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Save failed. Check connection.');
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -74,7 +88,7 @@ export default function ManageTeam() {
     if (!confirm('Remove this team member?')) return;
     try {
       await deleteDocById(COLLECTIONS.team, id);
-      load();
+      setMembers((prev) => prev.filter((m) => m.id !== id));
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Delete failed.');
     }
@@ -132,8 +146,15 @@ export default function ManageTeam() {
           <textarea required rows={3} placeholder="Short bio" value={form.bio} onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))} className="admin-input" />
           <input placeholder="Skills (comma separated)" value={form.skills} onChange={(e) => setForm((f) => ({ ...f, skills: e.target.value }))} className="admin-input" />
           <input placeholder="LinkedIn URL (optional)" value={form.linkedinUrl} onChange={(e) => setForm((f) => ({ ...f, linkedinUrl: e.target.value }))} className="admin-input" />
-          <p className="text-xs text-ink-dim">Upload a profile photo after saving to attach it via Firebase Storage.</p>
-          <button type="submit" className="btn-primary w-full justify-center text-sm">{editing ? 'Save changes' : 'Add member'}</button>
+          <FileUploader
+            label="Profile Photo"
+            accept="image/*"
+            storagePath="team"
+            value={form.photoUrl}
+            onChange={(url) => setForm((f) => ({ ...f, photoUrl: url }))}
+            isImage={true}
+          />
+          <button type="submit" disabled={saving} className="btn-primary w-full justify-center text-sm">{saving ? 'Saving…' : editing ? 'Save changes' : 'Add member'}</button>
         </form>
       </Modal>
     </div>

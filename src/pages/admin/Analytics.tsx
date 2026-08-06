@@ -26,7 +26,20 @@ const topPages = [
   { page: '/blog', views: 350 },
 ];
 
+/** Read a CSS variable value from the root element at render time */
+function cssVar(name: string): string {
+  return `rgb(${getComputedStyle(document.documentElement).getPropertyValue(name).trim()})`;
+}
+
 export default function Analytics() {
+  const gridStroke     = cssVar('--color-line-bright-rgb');
+  const axisStroke     = cssVar('--color-ink-muted-rgb');
+  const tooltipBg      = cssVar('--color-panel-rgb');
+  const tooltipBorder  = cssVar('--color-line-rgb');
+  const tooltipLabel   = cssVar('--color-ink-rgb');
+  const barVisitors    = cssVar('--color-circuit-rgb');
+  const barViews       = cssVar('--color-signal-rgb');
+
   return (
     <div className="p-6 md:p-8">
       <p className="eyebrow mb-2">Insights</p>
@@ -37,19 +50,20 @@ export default function Analytics() {
           <p className="mb-5 text-sm text-ink-dim">Visitors this week</p>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={trafficData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E2738" />
-              <XAxis dataKey="day" stroke="#8B93A7" fontSize={12} tickLine={false} />
-              <YAxis stroke="#8B93A7" fontSize={12} tickLine={false} axisLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+              <XAxis dataKey="day" stroke={axisStroke} fontSize={12} tickLine={false} />
+              <YAxis stroke={axisStroke} fontSize={12} tickLine={false} axisLine={false} />
               <Tooltip
                 contentStyle={{
-                  background: '#0C1019',
-                  border: '1px solid #1E2738',
+                  background: tooltipBg,
+                  border: `1px solid ${tooltipBorder}`,
                   borderRadius: 8,
                   fontSize: 13,
+                  color: tooltipLabel,
                 }}
-                labelStyle={{ color: '#E8EBF2' }}
+                labelStyle={{ color: tooltipLabel }}
               />
-              <Bar dataKey="visitors" fill="#F2B705" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="visitors" fill={barVisitors} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -58,12 +72,12 @@ export default function Analytics() {
           <p className="mb-5 text-sm text-ink-dim">Most viewed pages</p>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={topPages} layout="vertical" margin={{ left: 8 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E2738" />
-              <XAxis type="number" stroke="#8B93A7" fontSize={12} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+              <XAxis type="number" stroke={axisStroke} fontSize={12} tickLine={false} />
               <YAxis
                 dataKey="page"
                 type="category"
-                stroke="#8B93A7"
+                stroke={axisStroke}
                 fontSize={12}
                 width={90}
                 tickLine={false}
@@ -71,13 +85,15 @@ export default function Analytics() {
               />
               <Tooltip
                 contentStyle={{
-                  background: '#0C1019',
-                  border: '1px solid #1E2738',
+                  background: tooltipBg,
+                  border: `1px solid ${tooltipBorder}`,
                   borderRadius: 8,
                   fontSize: 13,
+                  color: tooltipLabel,
                 }}
+                labelStyle={{ color: tooltipLabel }}
               />
-              <Bar dataKey="views" fill="#2DD4BF" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="views" fill={barViews} radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

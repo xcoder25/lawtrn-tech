@@ -32,7 +32,7 @@ export default function About() {
         <div className="mx-auto max-w-3xl text-center">
           <p className="eyebrow mb-4">About Lawtronic</p>
           <h1 className="font-display text-4xl font-semibold tracking-tight text-ink md:text-5xl text-balance">
-            A technology company built around one habit: research it, then build it.
+            <span className="text-blue-chrome-animated">A technology company built around one habit: research it, then build it.</span>
           </h1>
           <p className="mt-6 text-base leading-relaxed text-ink-dim">
             Lawtronic Technologies started as a small robotics and electronics workshop and has
@@ -65,7 +65,7 @@ export default function About() {
       <div className="circuit-divider" />
 
       <section className="mx-auto max-w-7xl px-5 py-20 md:px-6 md:py-24">
-        <SectionHeader eyebrow="What we hold to" title="Core values" />
+        <SectionHeader eyebrow="What we hold to" title=<span className="text-blue-chrome-animated"> Core values</span> />
         <div className="grid gap-5 sm:grid-cols-2">
           {VALUES.map((v) => (
             <div key={v.title} className="card-interactive p-6">
@@ -79,7 +79,7 @@ export default function About() {
       <div className="circuit-divider" />
 
       <section className="mx-auto max-w-7xl px-5 py-20 md:px-6 md:py-24">
-        <SectionHeader eyebrow="Where we're headed" title="Roadmap" />
+        <SectionHeader eyebrow="Where we're headed" title=<span className="text-blue-chrome-animated"> Roadmap</span> />
         <div className="mx-auto max-w-2xl space-y-0">
           {ROADMAP.map((item, i) => (
             <div

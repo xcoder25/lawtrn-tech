@@ -1,9 +1,11 @@
 import { useRef, useState, useEffect } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import AdminLoginModal from './AdminLoginModal';
+import ThemeToggle from '../ui/ThemeToggle';
 
 const NAV_LINKS = [
+  { to: '/', label: 'Home' },
   { to: '/about', label: 'About' },
   { to: '/projects', label: 'Projects' },
   { to: '/research', label: 'Research' },
@@ -24,6 +26,7 @@ export default function Navbar() {
   const clickCount = useRef(0);
   const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Close drawer on route change
   useEffect(() => {
@@ -52,6 +55,7 @@ export default function Navbar() {
       return;
     }
     clickTimer.current = setTimeout(() => { clickCount.current = 0; }, SECRET_CLICK_WINDOW_MS);
+    navigate('/');
   }
 
   return (
@@ -98,21 +102,25 @@ export default function Navbar() {
           </div>
 
           {/* Desktop CTA */}
-          <div className="hidden lg:block">
+          <div className="hidden lg:flex items-center gap-3">
+            <ThemeToggle />
             <Link to="/contact" className="btn-primary text-sm">
               Start a Collaboration
             </Link>
           </div>
 
-          {/* Mobile hamburger */}
-          <button
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-line/60 text-ink transition-colors hover:bg-panel2 lg:hidden"
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-label="Toggle menu"
-            aria-expanded={mobileOpen}
-          >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          {/* Mobile hamburger controls */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <ThemeToggle />
+            <button
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-line/60 text-ink transition-colors hover:bg-panel2"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label="Toggle menu"
+              aria-expanded={mobileOpen}
+            >
+              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
         </nav>
       </header>
 

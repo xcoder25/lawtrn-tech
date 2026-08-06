@@ -41,7 +41,7 @@ export default function Team() {
                   <div className="absolute inset-0 bg-circuit-grid opacity-15" />
                   <div className="scan-line" />
                   {/* Initials */}
-                  <span className="relative font-display text-3xl font-bold text-circuit drop-shadow-[0_0_8px_rgba(26,159,255,0.6)]">
+                  <span className="relative font-display text-3xl font-bold text-circuit [text-shadow:0_0_8px_currentColor]">
                     {member.name.split(' ').map((n) => n[0]).join('')}
                   </span>
                 </div>

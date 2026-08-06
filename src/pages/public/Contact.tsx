@@ -30,7 +30,7 @@ export default function Contact() {
         <div>
           <p className="eyebrow mb-3">Get in touch</p>
           <h1 className="font-display text-4xl font-semibold tracking-tight text-ink">
-            Let&apos;s build something.
+            <span className="text-blue-chrome-animated"> Let&apos;s build something.</span>
           </h1>
           <p className="mt-4 max-w-md text-base leading-relaxed text-ink-dim">
             Whether it&apos;s a partnership, a research collaboration, or a general question — this
@@ -52,22 +52,20 @@ export default function Contact() {
             <button
               type="button"
               onClick={() => setForm((f) => ({ ...f, type: 'general' }))}
-              className={`flex-1 rounded-lg border px-3 py-2.5 text-sm transition-colors ${
-                form.type === 'general'
+              className={`flex-1 rounded-lg border px-3 py-2.5 text-sm transition-colors ${form.type === 'general'
                   ? 'border-circuit/50 bg-circuit/5 text-circuit'
                   : 'border-line text-ink-dim hover:border-line-bright'
-              }`}
+                }`}
             >
               General inquiry
             </button>
             <button
               type="button"
               onClick={() => setForm((f) => ({ ...f, type: 'collaboration' }))}
-              className={`flex-1 rounded-lg border px-3 py-2.5 text-sm transition-colors ${
-                form.type === 'collaboration'
+              className={`flex-1 rounded-lg border px-3 py-2.5 text-sm transition-colors ${form.type === 'collaboration'
                   ? 'border-circuit/50 bg-circuit/5 text-circuit'
                   : 'border-line text-ink-dim hover:border-line-bright'
-              }`}
+                }`}
             >
               Collaboration
             </button>

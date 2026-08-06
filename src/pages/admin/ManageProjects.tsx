@@ -3,6 +3,7 @@ import { Plus, Pencil, Trash2, CheckCircle2, Circle, ImageIcon, X } from 'lucide
 import Modal from '../../components/ui/Modal';
 import StatusBadge from '../../components/ui/StatusBadge';
 import EmptyState from '../../components/ui/EmptyState';
+import FileUploader from '../../components/ui/FileUploader';
 import {
   COLLECTIONS,
   listDocs,
@@ -162,15 +163,27 @@ export default function ManageProjects() {
       };
       if (editing) {
         await updateDocById(COLLECTIONS.projects, editing.id, payload);
+        setProjects((prev) =>
+          prev.map((p) => (p.id === editing.id ? { ...p, ...payload } : p))
+        );
       } else {
-        await createDoc(COLLECTIONS.projects, {
+        const result = await createDoc(COLLECTIONS.projects, {
           ...payload,
           createdAt: new Date().toISOString().slice(0, 10),
           updatedAt: new Date().toISOString().slice(0, 10),
         });
+        const newId = (result as { id: string })?.id ?? `local-${Date.now()}`;
+        setProjects((prev) => [
+          ...prev,
+          {
+            ...payload,
+            id: newId,
+            createdAt: new Date().toISOString().slice(0, 10),
+            updatedAt: new Date().toISOString().slice(0, 10),
+          } as Project,
+        ]);
       }
       setModalOpen(false);
-      load();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Save failed. Check Firebase connection.');
     } finally {
@@ -182,7 +195,7 @@ export default function ManageProjects() {
     if (!confirm('Delete this project? This cannot be undone.')) return;
     try {
       await deleteDocById(COLLECTIONS.projects, id);
-      load();
+      setProjects((prev) => prev.filter((p) => p.id !== id));
     } catch {
       alert('Delete failed. Check Firebase rules and connection.');
     }
@@ -398,24 +411,21 @@ export default function ManageProjects() {
                   </button>
                 ))}
               </div>
+              <FileUploader
+                label="Upload Cover Image"
+                accept="image/*"
+                storagePath="projects"
+                value={form.coverImage}
+                onChange={(url) => setForm((f) => ({ ...f, coverImage: url }))}
+                isImage={true}
+              />
+              <div className="text-[10px] text-ink-muted text-center py-1">— OR —</div>
               <input
                 placeholder="Or paste a custom image URL…"
                 value={form.coverImage}
                 onChange={(e) => setForm((f) => ({ ...f, coverImage: e.target.value }))}
                 className="admin-input text-xs"
               />
-              {form.coverImage && (
-                <div className="relative h-24 overflow-hidden rounded-lg border border-line">
-                  <img
-                    src={form.coverImage}
-                    alt="Preview"
-                    className="h-full w-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                </div>
-              )}
             </div>
           </div>
 

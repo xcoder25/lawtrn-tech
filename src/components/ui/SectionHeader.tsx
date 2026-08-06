@@ -4,7 +4,7 @@ export default function SectionHeader({
   description,
 }: {
   eyebrow: string;
-  title: string;
+  title: React.ReactNode;
   description?: string;
 }) {
   return (

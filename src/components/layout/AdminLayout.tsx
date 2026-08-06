@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   FolderKanban,
@@ -14,9 +14,11 @@ import {
   Menu,
   X,
   MessageSquare,
+  Home,
 } from 'lucide-react';
 import { logoutAdmin } from '../../firebase/auth';
 import { useAuth } from '../../context/AuthContext';
+import ThemeToggle from '../ui/ThemeToggle';
 
 const NAV_ITEMS = [
   { to: '/admin/dashboard', label: 'Overview', icon: LayoutDashboard },
@@ -56,6 +58,14 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
+        <Link
+          to="/"
+          onClick={onNavigate}
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-ink-dim hover:bg-panel2 hover:text-ink transition-colors mb-3 border-b border-line/40 pb-3"
+        >
+          <Home size={16} strokeWidth={1.75} />
+          View Website
+        </Link>
         {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
@@ -76,10 +86,15 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       <div className="border-t border-line px-4 py-4">
-        <p className="truncate text-xs text-ink-dim">{admin?.email}</p>
-        <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-circuit">
-          {admin?.role?.replace('_', ' ')}
-        </p>
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs text-ink-dim">{admin?.email}</p>
+            <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-circuit">
+              {admin?.role?.replace('_', ' ')}
+            </p>
+          </div>
+          <ThemeToggle />
+        </div>
         <button
           onClick={handleLogout}
           className="mt-3 flex items-center gap-2 text-sm text-ink-dim transition-colors hover:text-alert"
@@ -119,18 +134,21 @@ export default function AdminLayout() {
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-center gap-3 border-b border-line px-4 py-3 md:hidden">
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="rounded-md p-2 text-ink hover:bg-panel2"
-            aria-label="Open menu"
-          >
-            <Menu size={20} />
-          </button>
-          <p className="font-display text-sm font-semibold text-ink">
-            LAW<span className="text-circuit">TRONIC</span>
-            <span className="ml-2 text-xs font-normal text-ink-muted">Admin</span>
-          </p>
+        <div className="flex items-center justify-between border-b border-line px-4 py-3 md:hidden">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="rounded-md p-2 text-ink hover:bg-panel2"
+              aria-label="Open menu"
+            >
+              <Menu size={20} />
+            </button>
+            <p className="font-display text-sm font-semibold text-ink">
+              LAW<span className="text-circuit">TRONIC</span>
+              <span className="ml-2 text-xs font-normal text-ink-muted">Admin</span>
+            </p>
+          </div>
+          <ThemeToggle />
         </div>
         <div className="flex-1 overflow-auto">
           <Outlet />

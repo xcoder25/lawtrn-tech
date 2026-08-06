@@ -24,7 +24,7 @@ export default function Projects() {
   useEffect(() => {
     listDocs<Project>(COLLECTIONS.projects)
       .then((docs) => docs.length && setProjects(docs))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const categories = useMemo(
@@ -46,7 +46,7 @@ export default function Projects() {
       <div className="mb-12">
         <p className="eyebrow mb-3">Project index</p>
         <h1 className="font-display text-4xl font-semibold tracking-tight text-ink">
-          Everything we&apos;re building
+          <span className="text-blue-chrome-animated"> Everything we&apos;re building</span>
         </h1>
         <p className="mt-3 max-w-xl text-ink-dim">
           From early research to completed deployments — tracked openly, at every stage.

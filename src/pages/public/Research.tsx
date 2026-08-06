@@ -14,14 +14,14 @@ export default function Research() {
         const published = docs.filter((d) => d.published);
         if (published.length) setItems(published);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-20 md:px-6 md:py-24">
       <SectionHeader
         eyebrow="Research center"
-        title="Published research"
+        title=<span className="text-blue-chrome-animated"> Published research</span>
         description="Findings from our engineering work, written up and shared openly."
       />
 

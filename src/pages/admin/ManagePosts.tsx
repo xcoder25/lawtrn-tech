@@ -4,8 +4,9 @@ import Modal from '../../components/ui/Modal';
 import { COLLECTIONS, listDocs, createDoc, updateDocById, deleteDocById } from '../../firebase/firestore';
 import type { Post } from '../../types';
 import { mockPosts } from '../../data/mockData';
+import FileUploader from '../../components/ui/FileUploader';
 
-const emptyForm = { title: '', type: 'blog' as Post['type'], excerpt: '', content: '', published: false };
+const emptyForm = { title: '', type: 'blog' as Post['type'], excerpt: '', content: '', coverImage: '', published: false };
 
 export default function ManagePosts() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -13,6 +14,7 @@ export default function ManagePosts() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Post | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -36,30 +38,46 @@ export default function ManagePosts() {
 
   function openEdit(post: Post) {
     setEditing(post);
-    setForm({ title: post.title, type: post.type, excerpt: post.excerpt, content: post.content, published: post.published });
+    setForm({
+      title: post.title,
+      type: post.type,
+      excerpt: post.excerpt,
+      content: post.content,
+      coverImage: post.coverImage ?? '',
+      published: post.published,
+    });
     setModalOpen(true);
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setSaving(true);
     const slug = form.title.toLowerCase().trim().replace(/\s+/g, '-');
     try {
       if (editing) {
         await updateDocById(COLLECTIONS.posts, editing.id, { ...form, slug });
+        setPosts((prev) =>
+          prev.map((p) => (p.id === editing.id ? { ...p, ...form, slug } : p))
+        );
       } else {
-        await createDoc(COLLECTIONS.posts, {
+        const result = await createDoc(COLLECTIONS.posts, {
           ...form,
           slug,
-          coverImage: '',
           authorId: '',
           tags: [],
           publishedAt: new Date().toISOString(),
         });
+        const newId = (result as { id: string })?.id ?? `local-${Date.now()}`;
+        setPosts((prev) => [
+          ...prev,
+          { ...form, slug, id: newId, authorId: '', tags: [], publishedAt: new Date().toISOString() } as Post,
+        ]);
       }
       setModalOpen(false);
-      load();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Save failed. Check connection.');
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -67,7 +85,7 @@ export default function ManagePosts() {
     if (!confirm('Delete this post?')) return;
     try {
       await deleteDocById(COLLECTIONS.posts, id);
-      load();
+      setPosts((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Delete failed.');
     }
@@ -135,6 +153,14 @@ export default function ManagePosts() {
             <option value="news">News</option>
             <option value="announcement">Announcement</option>
           </select>
+          <FileUploader
+            label="Upload Cover Image"
+            accept="image/*"
+            storagePath="posts"
+            value={form.coverImage}
+            onChange={(url) => setForm((f) => ({ ...f, coverImage: url }))}
+            isImage={true}
+          />
           <textarea
             required
             rows={2}
@@ -158,8 +184,8 @@ export default function ManagePosts() {
             />
             Publish immediately
           </label>
-          <button type="submit" className="btn-primary w-full justify-center text-sm">
-            {editing ? 'Save changes' : 'Create post'}
+          <button type="submit" disabled={saving} className="btn-primary w-full justify-center text-sm">
+            {saving ? 'Saving…' : editing ? 'Save changes' : 'Create post'}
           </button>
         </form>
       </Modal>
